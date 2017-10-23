@@ -1,13 +1,13 @@
 #define N	3	/*Number of Proc*/
 
-short flag[N]={0};
+short flags[N]={0};
 int nCrit = 0;
 
 active [N] proctype p(){
 	do
 		::true->
 			l1:	skip;
-			l2:	flag[_pid] = 1;
+			l2:	flags[_pid] = 1;
 			l3:	do
 					::true -> 
 						atomic{
@@ -15,7 +15,7 @@ active [N] proctype p(){
 							bool stop = 1;
 							for(i : 0 .. N-1){
 								if
-									::(flag[i] < 3) -> skip
+									::(flags[i] < 3) -> skip
 									::else -> 
 										stop = 0;
 										break;
@@ -27,13 +27,13 @@ active [N] proctype p(){
 							fi;
 						}
 				od;
-			l4:	flag[_pid] = 3;
+			l4:	flags[_pid] = 3;
 			bool checkL5 = 0;
 			atomic{
 				int i;
 				for(i : 0 .. N-1){
 					if
-						::(flag[i] == 1) -> 
+						::(flags[i] == 1) -> 
 							checkL5 = 1;
 							break;
 						::else -> skip
@@ -42,7 +42,7 @@ active [N] proctype p(){
 			};
 			l5:	if
 					::checkL5 ->
-						l6:	flag[_pid] = 2;
+						l6:	flags[_pid] = 2;
 						l7:	do
 								::true ->
 									atomic{
@@ -50,7 +50,7 @@ active [N] proctype p(){
 										bool stop = 0;
 										for(i : 0 .. N-1){
 											if
-												::(flag[i] == 4) -> 
+												::(flags[i] == 4) -> 
 													stop = 1;
 													break;
 												::else -> skip
@@ -64,7 +64,7 @@ active [N] proctype p(){
 							od;
 					::else -> skip
 				fi;
-			l8:	flag[_pid] = 4;
+			l8:	flags[_pid] = 4;
 			l9:	do
 					::true ->
 						atomic{
@@ -72,7 +72,7 @@ active [N] proctype p(){
 							bool stop = 1;
 							for(i : 0 .. _pid-1){
 								if
-									::(flag[i] < 2) -> skip
+									::(flags[i] < 2) -> skip
 									::else ->
 										stop = 0;
 										break
@@ -94,7 +94,7 @@ active [N] proctype p(){
 								bool stop = 1;
 								for(i : _pid+1 .. N-1){
 									if
-										::((flag[i] == 0) || (flag[i] == 1) || (flag[i] == 4)) -> skip
+										::((flags[i] == 0) || (flags[i] == 1) || (flags[i] == 4)) -> skip
 										::else ->
 											stop = 0;
 											break
@@ -106,6 +106,6 @@ active [N] proctype p(){
 								fi;
 							}
 					od
-			l12: flag[_pid] = 0;
+			l12: flags[_pid] = 0;
 	od
 }
